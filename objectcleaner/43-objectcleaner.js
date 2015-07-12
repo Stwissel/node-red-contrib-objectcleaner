@@ -32,7 +32,7 @@ module.exports = function(RED) {
         node.notempty = n.notempty;
         node.musthaveallproperties = n.musthaveallproperties;
         
-        this.deepclean = function(template, candidate, hasBeenCleaned) {
+        this.deepclean = function(template, candidate, logobject, hasBeenCleaned) {
 			var cleandit = false;
 			
 			for (var prop in candidate) {
@@ -45,17 +45,19 @@ module.exports = function(RED) {
 					// Case 1: strict checking and types are different
 					if (node.strictclean && ((typeof tProp) !== (typeof cProp))) {
 						delete candidate[prop];
+						logobject.messages.push({"wrongDataType" : prop});
 						cleandit = true;
 						
 					// Case 2: both are objects - recursion needed	
 					} else if (((typeof tProp) === "object") && ((typeof cProp) === "object")) {
-						cleandit = node.deepclean(tProp, cProp, (hasBeenCleaned || cleandit));
+						cleandit = node.deepclean(tProp, cProp, logobject, (hasBeenCleaned || cleandit));
 						candidate[prop] = cProp;
 					}
 				
 				// Case 3: property is not there	
 				} else {
 					delete candidate[prop];
+					logobject.messages.push({"notInTemplate" : prop});
 					cleandit = true;
 				}
 			}
@@ -64,68 +66,81 @@ module.exports = function(RED) {
 		};
 		
 		/* Checks that the candate has each property the template has too */
-		this.hasAllProperties = function(template, candidate) {
+		/* Does deep inspection, so we get a good log object */
+		this.hasAllProperties = function(template, candidate, logobject) {
+				var result = true;
 				for (var prop in template) {
 					if (!candidate.hasOwnProperty(prop)) {
-						return false;
+						logobject.messages.push({"missing" : prop});
+						result = false;
 					} else {
 						var tProp = template[prop];
 						var cProp = candidate[prop];
 						
 						// Case 1: strict checking and types
 						if (node.strictclean && ((typeof tProp) !== (typeof cProp))) {
-							return false;
+							logobject.messages.push({"wrongDataType" : prop});
+							result = false;
 						
 						// Case 2: both objects, deep inspection needed
 						} else if (((typeof tProp) === "object") && ((typeof cProp) === "object")) {
-							var subresult = node.hasAllProperties(tProp, cProp);
+							var subresult = node.hasAllProperties(tProp, cProp, logobject);
 							// Stop at the first failure
 							if (!subresult) {
-								return false;
+								result = false;
 							}
 						}
 					}
 				}
 									
-				// We reach here - all worked
-				return true; 
+				return result; 
 			}
         
         // Clean the payload object
         this.on('input', function (msg) {
 			var raw = msg[node.field] || {};
-				
+			var logobject = {};
+			logobject.messages = [];
+			
 			try {
 				// Turn an eventual String into a JSOn object
 				var candidate = ((typeof raw) === "string") ? JSON.parse(raw) : raw;
 			
 				if ((typeof candidate) === "object") {
 					
-					// Check for empty object
-					if (node.notempty && candidate === {})	 {
+					// Check for empty object - interestingly === {} doesn't work
+					if (node.notempty && JSON.stringify(candidate) === "{}") {
 						node.error(node.field+" was empty");
+						logobject.messages.push({"empty" : node.field});
+						node.send([null, logobject]);
 					} else {
 						// Perform the regular cleanup
-						var cleanupNeeded = node.deepclean(node.template, candidate, false);
+						var cleanupNeeded = node.deepclean(node.template, candidate, logobject, false);
 						
 						// If property matching is required we check here before we send back
 						
-						var goodToGo = (!node.musthaveallproperties) || node.hasAllProperties(node.template, candidate);
+						var goodToGo = (!node.musthaveallproperties) || node.hasAllProperties(node.template, candidate, logobject);
 						
 						if (goodToGo) {
 							msg[node.field] = candidate;
-							node.send(msg);
 							// Update the node status and log
 							if (cleanupNeeded) {
+								logobject.cameInclean = false;
 								this.status({fill:"green",shape:"ring",text: node.field+" cleaned"});
 								node.log(node.field+" cleaned");
 							} else {
+								logobject.cameInclean = true;
 								this.status({fill:"green",shape:"dot",text: node.field+" is clean"});
-							}							
+							}	
+							
+							// Finally return it
+							node.send([msg, logobject]);
+													
 						} else {
 							var propFail = node.field+" is missing properties";
 							this.status({fill:"red",shape:"ring",text: propFail});
 							node.error(propFail);
+							node.send([null, logobject]);
 						}
 					}				
 					

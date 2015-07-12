@@ -59,7 +59,9 @@
 <script type="text/x-red" data-help-name="objectcleaner">
    <p>Cleans an incoming JSON object to only contain properties of a provided sample</p>
    <p>When "Strict checking of data types?" is checked a limited test on JSON data types is performed </p>
+   <p>The first property returns the cleaned-up object, while the second property returns an object with the names of removed properties if any</p>
    <p>The test is fully recursive</p>
+   <p>Currently we don't handle Arrays</p>
 </script>
 
 <!-- Finally, the node type is registered along with all of its properties   -->
@@ -76,7 +78,7 @@
             musthaveallproperties :  {value:false}           
         },
         inputs:1,
-        outputs:1,
+        outputs:2,
         icon: "objectcleaner.png",
         color : "#ffddff",
         label: function() {     // sets the default label contents
