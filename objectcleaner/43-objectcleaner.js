@@ -80,7 +80,7 @@ module.exports = function(RED) {
 						} else if (((typeof tProp) === "object") && ((typeof cProp) === "object")) {
 							var subresult = node.hasAllProperties(tProp, cProp);
 							// Stop at the first failure
-							if (!subsresult) {
+							if (!subresult) {
 								return false;
 							}
 						}
@@ -124,7 +124,7 @@ module.exports = function(RED) {
 							}							
 						} else {
 							var propFail = node.field+" is missing properties";
-							this.status({fill:"red",shape:"ring",text: npropFail});
+							this.status({fill:"red",shape:"ring",text: propFail});
 							node.error(propFail);
 						}
 					}				
