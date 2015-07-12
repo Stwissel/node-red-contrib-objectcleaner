@@ -2,12 +2,25 @@
     "name"         : "node-red-contrib-objectcleaner",
     "version"      : "0.0.2",
     "description"  : "Removes properties from incoming (payload) object, that are not in a template object",
-    "dependencies": {
-    },
-    "keywords": [ "node-red", "validation", "flow" ],
+    "dependencies" : {},
+    "keywords"     : [ "node-red", "validation", "flow", "json" ],
     "node-red"     : {
         "nodes": {
-            "objectcleaner": "objectcleaner/objectcleaner.js"
+					 "objectcleaner": "objectcleaner/objectcleaner.js"
         }
-    }
+    },
+    "repository"   : {
+		"type" : "git",
+		"url"  : "https://github.com/Stwissel/node-red-contrib-objectcleaner"
+	},
+	"author"        : {
+		"name" : "Stephan H. Wissel",
+		"email" : "stephan@wissel.net",
+		"url" : "http://www.wissel.net/"
+	},
+	"license"		: "Apache-2.0",
+	"bugs"			: {
+		"url"	: "https://github.com/Stwissel/node-red-contrib-objectcleaner/issues"
+	}
+	
 }
