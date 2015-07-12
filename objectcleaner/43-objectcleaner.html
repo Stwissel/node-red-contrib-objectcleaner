@@ -1,0 +1,150 @@
+<!--
+  Copyright 2015 IBM Corp.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<script type="text/x-red" data-template-name="objectcleaner">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <br/>
+  
+    <div class="form-row">
+        <label for="node-input-field"><i class="fa fa-tag"></i> Property</label>
+        <input type="text" id="node-input-name" placeholder="payload">
+    </div>
+    <br/>
+    
+    <div class="form-row" style="margin-bottom: 0px;">
+        <label for="node-input-template"><i class="fa fa-wrench"></i> Reference</label>
+        <input type="hidden" id="node-input-template" autofocus="autofocus">
+        <input type="hidden" id="node-input-noerr">
+    </div>
+    <div class="form-row node-text-editor-row">
+        <div style="height: 250px;" class="node-text-editor" id="node-input-template-editor" ></div>
+    </div>
+    
+    <br/>    
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-notempty" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-strictclean" style="width: 70%;">Prevent empty objects?</label>
+    </div>
+    
+    <br/>    
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-strictclean" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-strictclean" style="width: 70%;">Strict checking of data types?</label>
+    </div>
+    
+    <br/>    
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-musthaveallproperties" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-strictclean" style="width: 70%;">Reject when properties are missing</label>
+    </div>
+ 
+</script>
+
+<script type="text/x-red" data-help-name="objectcleaner">
+   <p>Cleans an incoming JSON object to only contain properties of a provided sample</p>
+   <p>When "Strict checking of data types?" is checked a limited test on JSON data types is performed </p>
+   <p>The test is fully recursive</p>
+</script>
+
+<!-- Finally, the node type is registered along with all of its properties   -->
+<!-- The example below shows a small subset of the properties that can be set-->
+<script type="text/javascript">
+    RED.nodes.registerType('objectcleaner',{
+        category: 'experimental', 
+        defaults: {
+            name: {value:""},
+            template: {value:"", required:true},
+            field: {value:""},
+            strictclean :  {value:true},
+            notempty : {value:true},
+            musthaveallproperties :  {value:false}           
+        },
+        inputs:1,
+        outputs:1,
+        icon: "objectcleaner.png",
+        color : "#ffddff",
+        label: function() {     // sets the default label contents
+            return this.name||"objectcleaner";
+        },
+        labelStyle: function() { // sets the class to apply to the label
+            return this.name?"node_label_italic":"";
+        },
+        
+        oneditprepare: function() {
+            var that = this;
+
+            function functionDialogResize() {
+                var rows = $("#dialog-form>div:not(.node-text-editor-row)");
+                var height = $("#dialog-form").height();
+                for (var i=0;i<rows.size();i++) {
+                    height -= $(rows[i]).outerHeight(true);
+                }
+                var editorRow = $("#dialog-form>div.node-text-editor-row");
+                height -= (parseInt(editorRow.css("marginTop"))+parseInt(editorRow.css("marginBottom")));
+                $(".node-text-editor").css("height",height+"px");
+                that.editor.resize();
+            }
+            $( "#dialog" ).on("dialogresize", functionDialogResize);
+            $( "#dialog" ).one("dialogopen", function(ev) {
+                var size = $( "#dialog" ).dialog('option','sizeCache-function');
+                if (size) {
+                    $("#dialog").dialog('option','width',size.width);
+                    $("#dialog").dialog('option','height',size.height);
+                    functionDialogResize();
+                }
+            });
+            $( "#dialog" ).one("dialogclose", function(ev,ui) {
+                var height = $( "#dialog" ).dialog('option','height');
+                $( "#dialog" ).off("dialogresize",functionDialogResize);
+            });
+
+            this.editor = RED.editor.createEditor({
+                id: 'node-input-template-editor',
+                mode: 'ace/mode/javascript',
+                value: $("#node-input-template").val()
+            });
+
+            RED.library.create({
+                url:"functions", // where to get the data from
+                type:"function", // the type of object the library is for
+                editor:this.editor, // the field name the main text body goes to
+                mode:"ace/mode/javascript",
+                fields:['name','field']
+            });
+            this.editor.focus();
+        }, 
+        oneditsave: function() {
+            var annot = this.editor.getSession().getAnnotations();
+            this.noerr = 0;
+            $("#node-input-noerr").val(0);
+            for (var k=0; k < annot.length; k++) {
+                //console.log(annot[k].type,":",annot[k].text, "on line", annot[k].row);
+                if (annot[k].type === "error") {
+                    $("#node-input-noerr").val(annot.length);
+                    this.noerr = annot.length;
+                }
+            }
+            $("#node-input-template").val(this.editor.getValue());
+            delete this.editor;
+        }
+    });
+</script>
