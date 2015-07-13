@@ -48,7 +48,9 @@ module.exports = function(RED) {
 						logobject.messages.push({"wrongDataType" : prop});
 						cleandit = true;
 						
-					// Case 2: both are objects - recursion needed	
+					// Case 2: both are objects - recursion eventually needed
+					//         An object could be an Array - 2 different use cases
+					// TODO: Fix this!	
 					} else if (((typeof tProp) === "object") && ((typeof cProp) === "object")) {
 						cleandit = node.deepclean(tProp, cProp, logobject, (hasBeenCleaned || cleandit));
 						candidate[prop] = cProp;

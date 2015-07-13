@@ -1,12 +1,12 @@
 {
     "name"         : "node-red-contrib-objectcleaner",
     "version"      : "0.0.2",
-    "description"  : "Removes properties from incoming (payload) object, that are not in a template object",
+    "description"  : "Removes properties from incoming (payload) json object, that are not in a template object. Optional rejects incomplete objects",
     "dependencies" : {},
     "keywords"     : [ "node-red", "validation", "flow", "json" ],
     "node-red"     : {
         "nodes": {
-					 "objectcleaner": "objectcleaner/objectcleaner.js"
+					 "objectcleaner": "objectcleaner/43-objectcleaner.js"
         }
     },
     "repository"   : {
