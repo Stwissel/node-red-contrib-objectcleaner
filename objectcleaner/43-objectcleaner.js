@@ -52,11 +52,21 @@ module.exports = function(RED) {
 					//         An object could be an Array - 2 different use cases
 					// TODO: Fix this!	
 					} else if (((typeof tProp) === "object") && ((typeof cProp) === "object")) {
-						cleandit = node.deepclean(tProp, cProp, logobject, (hasBeenCleaned || cleandit));
-						candidate[prop] = cProp;
+						
+						if (Array.isArray(tProp) && Array.isArray(cProp))  {
+							// Case 3a : Strict data type testing required
+							if (node.strictclean) {
+								cleandit = node.arrayCompare(tProp, cProp, logobject, (hasBeenCleaned || cleandit));
+							}
+							// Case 3b : we just leave them
+						} else {
+							// Deep cleaning ob objects
+							cleandit = node.deepclean(tProp, cProp, logobject, (hasBeenCleaned || cleandit));
+							candidate[prop] = cProp;
+						}
 					}
 				
-				// Case 3: property is not there	
+				// Case 4: property is not there	
 				} else {
 					delete candidate[prop];
 					logobject.messages.push({"notInTemplate" : prop});
@@ -67,14 +77,48 @@ module.exports = function(RED) {
 			return (hasBeenCleaned || cleandit);			
 		};
 		
+		// Compares 2 arrays, so the second only has objects of the same type as the first
+		this.arrayCompare = function(tArray, cArray, logobject, hasBeenCleaned) {
+			// Check available datatypes in template
+			var cleandit = false;
+			var objTypes = {};
+			var curType = "";
+			for(var i in tArray) {
+				curType = (typeof tArray[i]);
+				objTypes[curType] = true;				
+			}
+			// Check the candidate array for the same data types
+			for (var j in cArray) {
+				curType = (typeof cArray[j]);
+				if (curType==="object" && objTypes["object"]) {
+					// TODO: Deep comparison neededed - first arrays
+					
+				} else if  (!objTypes[curType]) {
+					cleandit = true;
+					logobject.messages.push({"arrayremove" : curType});
+					delete cArray[j];
+				}
+				
+			}
+			
+			return (hasBeenCleaned || cleandit);
+		};
+		
 		/* Checks that the candate has each property the template has too */
 		/* Does deep inspection, so we get a good log object */
-		this.hasAllProperties = function(template, candidate, logobject) {
+		this.hasAllProperties = function(template, candidate, logobject, addIfMissing) {
 				var result = true;
+				var addedProps = false;
 				for (var prop in template) {
 					if (!candidate.hasOwnProperty(prop)) {
-						logobject.messages.push({"missing" : prop});
-						result = false;
+						if (addIfMissing) {
+							candidate[prop] = template[prop];
+							logobject.messages.push({"added" : prop});
+							addedProps = true;
+						} else {
+							logobject.messages.push({"missing" : prop});
+							result = false;
+						}					
 					} else {
 						var tProp = template[prop];
 						var cProp = candidate[prop];
@@ -86,7 +130,7 @@ module.exports = function(RED) {
 						
 						// Case 2: both objects, deep inspection needed
 						} else if (((typeof tProp) === "object") && ((typeof cProp) === "object")) {
-							var subresult = node.hasAllProperties(tProp, cProp, logobject);
+							var subresult = node.hasAllProperties(tProp, cProp, logobject, addIfMissing);
 							// Stop at the first failure
 							if (!subresult) {
 								result = false;
@@ -94,7 +138,7 @@ module.exports = function(RED) {
 						}
 					}
 				}
-									
+				logobject.propertiesAdded = addedProps;				
 				return result; 
 			}
         
@@ -121,9 +165,9 @@ module.exports = function(RED) {
 						
 						// If property matching is required we check here before we send back
 						
-						var goodToGo = (!node.musthaveallproperties) || node.hasAllProperties(node.template, candidate, logobject);
+						var goodToGo = node.hasAllProperties(node.template, candidate, logobject, (node.musthaveallproperties==="1"));
 						
-						if (goodToGo) {
+						if ((node.musthaveallproperties==="0") || goodToGo) {
 							msg[node.field] = candidate;
 							// Update the node status and log
 							if (cleanupNeeded) {
