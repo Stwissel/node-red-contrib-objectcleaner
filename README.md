@@ -1,6 +1,10 @@
 # node-red-contrib-objectcleaner
 Manipulate an object (usually payload) to only have the properties of a sample object provided
 
+## v0.0.3
+
+- Fixed JS/HTML name
+
 ## v0.0.2
 
 - Added the option to backfill missing properties from the template object

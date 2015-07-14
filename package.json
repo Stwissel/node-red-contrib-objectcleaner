@@ -6,7 +6,7 @@
     "keywords"     : [ "node-red", "validation", "flow", "json" ],
     "node-red"     : {
         "nodes": {
-					 "objectcleaner": "objectcleaner/43-objectcleaner.js"
+					 "objectcleaner": "objectcleaner/objectcleaner.js"
         }
     },
     "repository"   : {
