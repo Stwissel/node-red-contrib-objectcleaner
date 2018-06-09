@@ -1,6 +1,9 @@
 ![Travis build status](https://travis-ci.org/Stwissel/node-red-contrib-objectcleaner.svg?branch=master)
 
 # node-red-contrib-objectcleaner
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/Stwissel/node-red-contrib-objectcleaner.svg)](https://greenkeeper.io/)
+
 Manipulate an object (usually payload) to only have the properties of a sample object provided
 
 ## v0.0.3
