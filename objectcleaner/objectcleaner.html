@@ -24,10 +24,14 @@
         <label for="node-input-field"><i class="fa fa-tag"></i> Property</label>
         <input type="text" id="node-input-name" placeholder="payload">
     </div>
+    <div class="form-row">
+    	<label for="node-input-field"><i class="fa fa-tag"></i> Reference Property</label>
+		<input type="text" id="node-input-property" placeholder="reference">
+    </div>
     <br/>
     
     <div class="form-row" style="margin-bottom: 0px;">
-        <label for="node-input-template"><i class="fa fa-wrench"></i> Reference</label>
+    	<label for="node-input-template"><i class="fa fa-wrench"></i> Template</label>
         <input type="hidden" id="node-input-template" autofocus="autofocus">
         <input type="hidden" id="node-input-noerr">
     </div>
@@ -90,6 +94,7 @@
         category: 'experimental', 
         defaults: {
             name: {value:""},
+      		property: { value: "" },
             template: {value:"", required:true},
             field: {value:""},
             strictclean :  {value:true},

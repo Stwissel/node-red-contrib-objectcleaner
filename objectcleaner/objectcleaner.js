@@ -26,6 +26,7 @@ module.exports = function(RED) {
         RED.nodes.createNode(this,n);
         var node = this;
         node.name = n.name;
+        node.property = n.property;
         node.field = n.field || "payload";
         node.template = JSON.parse(n.template);
         node.strictclean = n.strictclean;
@@ -147,6 +148,17 @@ module.exports = function(RED) {
 			var raw = msg[node.field] || {};
 			var logobject = {};
 			logobject.messages = [];
+			
+			// Check reference property attribute
+			// Use the reference property if exist
+			if (
+				node.property != null &&
+				node.property != "" &&
+				msg[node.property] != null &&
+				msg[node.property] != {}
+			) {
+				node.template = msg[node.property];
+			}
 			
 			try {
 				// Turn an eventual String into a JSOn object
