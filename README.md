@@ -3,6 +3,10 @@
 # node-red-contrib-objectcleaner
 Manipulate an object (usually payload) to only have the properties of a sample object provided
 
+## v0.0.4
+
+- Added reference property field to allow user set the reference externally
+
 ## v0.0.3
 
 - Fixed JS/HTML name
