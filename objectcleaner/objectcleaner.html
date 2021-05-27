@@ -15,154 +15,164 @@
 -->
 
 <script type="text/x-red" data-template-name="objectcleaner">
-    <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="Name">
-    </div>
+     <div class="form-row">
+         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+         <input type="text" id="node-input-name" placeholder="Name">
+     </div>
 
-    <div class="form-row">
-        <label for="node-input-field"><i class="fa fa-tag"></i> Property</label>
-        <input type="text" id="node-input-name" placeholder="payload">
-    </div>
-    <br/>
-    
-    <div class="form-row" style="margin-bottom: 0px;">
-        <label for="node-input-template"><i class="fa fa-wrench"></i> Reference</label>
-        <input type="hidden" id="node-input-template" autofocus="autofocus">
-        <input type="hidden" id="node-input-noerr">
-    </div>
-    <div class="form-row node-text-editor-row">
-        <div style="height: 250px;" class="node-text-editor" id="node-input-template-editor" ></div>
-    </div>    
-    <br/> 
-       
-    <div class="form-row">
-        <label>&nbsp;</label>
-        <input type="checkbox" id="node-input-notempty" style="display: inline-block; width: auto; vertical-align: top;">
-        <label for="node-input-strictclean" style="width: 70%;">Prevent empty objects?</label>
-    </div>
-    
-    <div class="form-row">
-        <label>&nbsp;</label>
-        <input type="checkbox" id="node-input-strictclean" style="display: inline-block; width: auto; vertical-align: top;">
-        <label for="node-input-strictclean" style="width: 70%;">Strict checking of data types?</label>
-    </div>
-    
-    <div class="form-row">
-     <label for="node-input-musthaveallproperties"><i class="fa fa-list"></i> Missing properties</label>
-        <select type="text" id="node-input-musthaveallproperties" style="display: inline-block; width: 250px; vertical-align: top;">
-            <option value="0">ignore property</option>
-            <option value="1">add sample from reference</option>
-            <option value="2">reject object</option>
-        </select>
-	</div>
- 
+     <div class="form-row">
+         <label for="node-input-field"><i class="fa fa-tag"></i> Property</label>
+         <input type="text" id="node-input-name" placeholder="payload">
+     </div>
+
+     <div class="form-row">
+     	<label for="node-input-field"><i class="fa fa-tag"></i> Reference Property</label>
+         <input type="text" id="node-input-property" placeholder="reference">
+     </div>
+     <br/>
+
+     <div class="form-row" style="margin-bottom: 0px;">
+     	<label for="node-input-template"><i class="fa fa-wrench"></i> Template</label>
+         <input type="hidden" id="node-input-template" autofocus="autofocus">
+         <input type="hidden" id="node-input-noerr">
+     </div>
+     <div class="form-row node-text-editor-row">
+         <div style="height: 250px;" class="node-text-editor" id="node-input-template-editor" ></div>
+     </div>
+     <br/>
+
+     <div class="form-row">
+         <label>&nbsp;</label>
+         <input type="checkbox" id="node-input-notempty" style="display: inline-block; width: auto; vertical-align: top;">
+         <label for="node-input-strictclean" style="width: 70%;">Prevent empty objects?</label>
+     </div>
+
+     <div class="form-row">
+         <label>&nbsp;</label>
+         <input type="checkbox" id="node-input-strictclean" style="display: inline-block; width: auto; vertical-align: top;">
+         <label for="node-input-strictclean" style="width: 70%;">Strict checking of data types?</label>
+     </div>
+
+     <div class="form-row">
+      <label for="node-input-musthaveallproperties"><i class="fa fa-list"></i> Missing properties</label>
+         <select type="text" id="node-input-musthaveallproperties" style="display: inline-block; width: 250px; vertical-align: top;">
+             <option value="0">ignore property</option>
+             <option value="1">add sample from reference</option>
+             <option value="2">reject object</option>
+         </select>
+  </div>
 </script>
 
 <script type="text/x-red" data-help-name="objectcleaner">
-	<h3>Basis Operation</h3>
-   <p>Cleans an incoming JSON object to only contain properties of a provided sample. An incoming string gets converted using <code>JSON.parse</code></p>
-   <p>The first property returns the cleaned-up object, while the second property returns an object with the names of removed properties if any</p>
-   <p>The test is fully recursive.</p>
-   <h3>Options</h3>
-   <ul>
-	<li><h4>Prevent empty objects?</h4>
-	If the incoming object is empty like "" or {} it will be rejected, no result propagated. The results object gets populated
-	</li>
-	<li><h4>Strict checking of data types</h4>
-	Object properties are compared with typeof and === to ensure "42" !== 42
-	</li>
-	<li><h4>Missing properties</h4>
-	<ol>
-		<li><h5>ignore property</h5> Nothing happens. The resulting object will miss it</li>
-		<li><h5>add sample from reference</h5> The value from the reference object gets inserted</li>
-		<li><h5>reject object</h5> The object gets rejected and no result propagated</li>
-	</ol>
-	</li>
-   </ul>
-   <p>The node uses a visual indicator to show the result of the last cleanup operation in the UI</p>
+  <h3>Basis Operation</h3>
+    <p>Cleans an incoming JSON object to only contain properties of a provided sample. An incoming string gets converted using <code>JSON.parse</code>.</p>
+    <p>The first property returns the cleaned-up object, while the second property returns an object with the names of removed properties if any.</p>
+    <p>User can decide either to use external reference property or internal template to define the properties. The external reference property overrides internal template if defined.</p>
+    <p>The test is fully recursive.</p>
+    <h3>Options</h3>
+    <ul>
+  <li><h4>Prevent empty objects?</h4>
+  If the incoming object is empty like "" or {} it will be rejected, no result propagated. The results object gets populated
+  </li>
+  <li><h4>Strict checking of data types</h4>
+  Object properties are compared with typeof and === to ensure "42" !== 42
+  </li>
+  <li><h4>Missing properties</h4>
+  <ol>
+  	<li><h5>ignore property</h5> Nothing happens. The resulting object will miss it</li>
+  	<li><h5>add sample from reference</h5> The value from the reference object gets inserted</li>
+  	<li><h5>reject object</h5> The object gets rejected and no result propagated</li>
+  </ol>
+  </li>
+    </ul>
+    <p>The node uses a visual indicator to show the result of the last cleanup operation in the UI</p>
 </script>
 
 <!-- Finally, the node type is registered along with all of its properties   -->
 <!-- The example below shows a small subset of the properties that can be set-->
 <script type="text/javascript">
-    RED.nodes.registerType('objectcleaner',{
-        category: 'experimental', 
-        defaults: {
-            name: {value:""},
-            template: {value:"", required:true},
-            field: {value:""},
-            strictclean :  {value:true},
-            notempty : {value:true},
-            musthaveallproperties :  {value:"0"}           
-        },
-        inputs:1,
-        outputs:2,
-        icon: "objectcleaner.png",
-        color : "#ffddff",
-        label: function() {     // sets the default label contents
-            return this.name||"objectcleaner";
-        },
-        labelStyle: function() { // sets the class to apply to the label
-            return this.name?"node_label_italic":"";
-        },
-        
-        oneditprepare: function() {
-            var that = this;
+  RED.nodes.registerType("objectcleaner", {
+    category: "experimental",
+    defaults: {
+      name: { value: "" },
+      property: { value: "" },
+      template: { value: "" },
+      field: { value: "" },
+      strictclean: { value: true },
+      notempty: { value: true },
+      musthaveallproperties: { value: "0" },
+    },
+    inputs: 1,
+    outputs: 2,
+    icon: "objectcleaner.png",
+    color: "#ffddff",
+    label: function () {
+      // sets the default label contents
+      return this.name || "objectcleaner";
+    },
+    labelStyle: function () {
+      // sets the class to apply to the label
+      return this.name ? "node_label_italic" : "";
+    },
 
-            function functionDialogResize() {
-                var rows = $("#dialog-form>div:not(.node-text-editor-row)");
-                var height = $("#dialog-form").height();
-                for (var i=0;i<rows.size();i++) {
-                    height -= $(rows[i]).outerHeight(true);
-                }
-                var editorRow = $("#dialog-form>div.node-text-editor-row");
-                height -= (parseInt(editorRow.css("marginTop"))+parseInt(editorRow.css("marginBottom")));
-                $(".node-text-editor").css("height",height+"px");
-                that.editor.resize();
-            }
-            $( "#dialog" ).on("dialogresize", functionDialogResize);
-            $( "#dialog" ).one("dialogopen", function(ev) {
-                var size = $( "#dialog" ).dialog('option','sizeCache-function');
-                if (size) {
-                    $("#dialog").dialog('option','width',size.width);
-                    $("#dialog").dialog('option','height',size.height);
-                    functionDialogResize();
-                }
-            });
-            $( "#dialog" ).one("dialogclose", function(ev,ui) {
-                var height = $( "#dialog" ).dialog('option','height');
-                $( "#dialog" ).off("dialogresize",functionDialogResize);
-            });
+    oneditprepare: function () {
+      var that = this;
 
-            this.editor = RED.editor.createEditor({
-                id: 'node-input-template-editor',
-                mode: 'ace/mode/javascript',
-                value: $("#node-input-template").val()
-            });
-
-            RED.library.create({
-                url:"functions", // where to get the data from
-                type:"function", // the type of object the library is for
-                editor:this.editor, // the field name the main text body goes to
-                mode:"ace/mode/javascript",
-                fields:['name','field']
-            });
-            this.editor.focus();
-        }, 
-        oneditsave: function() {
-            var annot = this.editor.getSession().getAnnotations();
-            this.noerr = 0;
-            $("#node-input-noerr").val(0);
-            for (var k=0; k < annot.length; k++) {
-                //console.log(annot[k].type,":",annot[k].text, "on line", annot[k].row);
-                if (annot[k].type === "error") {
-                    $("#node-input-noerr").val(annot.length);
-                    this.noerr = annot.length;
-                }
-            }
-            $("#node-input-template").val(this.editor.getValue());
-            delete this.editor;
+      function functionDialogResize() {
+        var rows = $("#dialog-form>div:not(.node-text-editor-row)");
+        var height = $("#dialog-form").height();
+        for (var i = 0; i < rows.size(); i++) {
+          height -= $(rows[i]).outerHeight(true);
         }
-    });
+        var editorRow = $("#dialog-form>div.node-text-editor-row");
+        height -=
+          parseInt(editorRow.css("marginTop")) +
+          parseInt(editorRow.css("marginBottom"));
+        $(".node-text-editor").css("height", height + "px");
+        that.editor.resize();
+      }
+      $("#dialog").on("dialogresize", functionDialogResize);
+      $("#dialog").one("dialogopen", function (ev) {
+        var size = $("#dialog").dialog("option", "sizeCache-function");
+        if (size) {
+          $("#dialog").dialog("option", "width", size.width);
+          $("#dialog").dialog("option", "height", size.height);
+          functionDialogResize();
+        }
+      });
+      $("#dialog").one("dialogclose", function (ev, ui) {
+        var height = $("#dialog").dialog("option", "height");
+        $("#dialog").off("dialogresize", functionDialogResize);
+      });
+
+      this.editor = RED.editor.createEditor({
+        id: "node-input-template-editor",
+        mode: "ace/mode/javascript",
+        value: $("#node-input-template").val(),
+      });
+
+      RED.library.create({
+        url: "functions", // where to get the data from
+        type: "function", // the type of object the library is for
+        editor: this.editor, // the field name the main text body goes to
+        mode: "ace/mode/javascript",
+        fields: ["name", "field"],
+      });
+      this.editor.focus();
+    },
+    oneditsave: function () {
+      var annot = this.editor.getSession().getAnnotations();
+      this.noerr = 0;
+      $("#node-input-noerr").val(0);
+      for (var k = 0; k < annot.length; k++) {
+        //console.log(annot[k].type,":",annot[k].text, "on line", annot[k].row);
+        if (annot[k].type === "error") {
+          $("#node-input-noerr").val(annot.length);
+          this.noerr = annot.length;
+        }
+      }
+      $("#node-input-template").val(this.editor.getValue());
+      delete this.editor;
+    },
+  });
 </script>
